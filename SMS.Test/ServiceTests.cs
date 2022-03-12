@@ -215,11 +215,15 @@ namespace SMS.Test
         {
             // TBC - complete this method
             // arrange
-           
+           var s = svc.AddStudent("Sean", "Software Dev", "Sean@mail.com", 32, 71, "https://upload.wikimedia.org/wikipedia/commons/5/55/Question_Mark.svg");
+ 
             // act
+            var t = svc.CreateTicket(s.Id, "Ticket issued");
            
             // assert
-          
+          Assert.NotNull(t);
+          Assert.True(t.Active);
+          Assert.Equal(t.StudentId, s.Id);
         }
 
          [Fact] // --- GetTicket should include Student

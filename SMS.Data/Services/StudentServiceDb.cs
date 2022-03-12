@@ -10,7 +10,7 @@ namespace SMS.Data.Services
 {
     public class StudentServiceDb : IStudentService
     {
-        private readonly DataContext db;
+        private readonly DataContext db; // The instance of db to be referenced throughout this service
 
         public StudentServiceDb()
         {
@@ -37,8 +37,8 @@ namespace SMS.Data.Services
             return db.Students
                      .Include(s => s.Tickets)
                      .Include(s => s.StudentModules)
-                     // drill down and include each studentmodule module entity     
-                     .ThenInclude(sm => sm.Module) 
+                     // drill down and include each student module module entity     
+                     .ThenInclude(sm => sm.Module)
                      .FirstOrDefault(s => s.Id == id);
         }
 
@@ -51,7 +51,7 @@ namespace SMS.Data.Services
             if (exists != null)
             {
                 return null;
-            } 
+            }
 
             // create new student
             var s = new Student
@@ -111,8 +111,19 @@ namespace SMS.Data.Services
         // ===================== Ticket Management ==========================
         public Ticket CreateTicket(int studentId, string issue)
         {
-            // TBC - complete this method
-            return null;
+            var s = GetStudent(studentId);
+            if (s == null)
+            {
+
+                return null;
+            }
+
+            var t = new Ticket { StudentId = studentId, Issue = issue };// no need to set Active or Crated on properties-  
+            //these are set already in Ticket model
+            s.Tickets.Add(t); // alternatively db.Tickets.Add(t); can add ticket to Student TicketList or directly to db. 
+            db.SaveChanges();
+            return t;
+
         }
 
         public Ticket GetTicket(int id)
@@ -128,10 +139,10 @@ namespace SMS.Data.Services
             var ticket = GetTicket(id);
             // if ticket does not exist or is already closed return null
             if (ticket == null || !ticket.Active) return null;
-            
+
             // ticket exists and is active so close
             ticket.Active = false;
-           
+
             db.SaveChanges(); // write to database
             return ticket;
         }
@@ -141,10 +152,10 @@ namespace SMS.Data.Services
             // find ticket
             var ticket = GetTicket(id);
             if (ticket == null) return false;
-            
+
             // remove ticket 
             var result = db.Tickets.Remove(ticket);
-            
+
             db.SaveChanges();
             return true;
         }
@@ -162,13 +173,13 @@ namespace SMS.Data.Services
         {
             // return open tickets with associated students
             return db.Tickets
-                     .Include(t => t.Student) 
+                     .Include(t => t.Student)
                      .Where(t => t.Active)
                      .ToList();
-        } 
+        }
 
         // ========================= Module Management ========================
-     
+
         public Module AddModule(string title)
         {
             var m = new Module { Title = title };
@@ -182,15 +193,15 @@ namespace SMS.Data.Services
         {
             // check if this student module already exists and return null if found
             var sm = db.StudentModules
-                       .FirstOrDefault(o => o.StudentId == studentId && 
+                       .FirstOrDefault(o => o.StudentId == studentId &&
                                             o.ModuleId == moduleId);
-            if (sm != null)  {  return null;  }
+            if (sm != null) { return null; }
 
             // locate the student and the module
             var s = db.Students.FirstOrDefault(s => s.Id == studentId);
             var m = db.Modules.FirstOrDefault(m => m.Id == moduleId);
             // if either don't exist then return null
-            if (s == null || m == null) { return null;  }
+            if (s == null || m == null) { return null; }
 
             // create the student module and add to database
             var nsm = new StudentModule { StudentId = s.Id, ModuleId = m.Id, Mark = mark };
@@ -205,8 +216,8 @@ namespace SMS.Data.Services
             var sm = db.StudentModules.FirstOrDefault(
                 m => m.StudentId == studentId && m.ModuleId == moduleId
             );
-            if (sm == null) {  return false;  }
-            
+            if (sm == null) { return false; }
+
             // remove the student module
             db.StudentModules.Remove(sm);
             db.SaveChanges();

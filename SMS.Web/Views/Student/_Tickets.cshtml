@@ -1,5 +1,8 @@
-<div class="card rounded shadow">
-    <table class="table table-sm">
+@model Student
+  
+<div class = "row">
+<div class="bg-dark">
+    <table class="table table-sm table-dark">
         <thead>
             <tr>           
                 <th>Ticket Issue</th>
@@ -14,12 +17,15 @@
                     <td>@t.Issue</td>
                     <td>@t.CreatedOn</td>  
                     <td>@t.Active</td>
+                     
                     <td>
                        <!-- TBC - add an anchor tag styled as a small danger button that navigates  -->
                        <!-- to the TicketDelete action. Remember to pass the asp-route-id parameter -->
+                       <a asp-controller="Student" asp-action="TicketDelete" asp-route-id="@Model.Id" class="btn btn-sm btn-danger">Delete Ticket</a>
                     </td>             
                 </tr>   
             }
         </tbody>
     </table>
+</div>
 </div>

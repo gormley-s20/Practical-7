@@ -142,7 +142,7 @@ namespace SMS.Web.Controllers
             if (ModelState.IsValid)
             {                
                 var ticket = svc.CreateTicket(t.StudentId, t.Issue);
-                return RedirectToAction(nameof(Details), new { Id = ticket.StudentId });
+                return RedirectToAction(nameof(Details), new {Id = t.StudentId});
             }
             // redisplay the form for editing
             return View(t);
@@ -168,6 +168,8 @@ namespace SMS.Web.Controllers
         public IActionResult TicketDeleteConfirm(int id, int studentId)
         {
             // TBC delete student via service
+            svc.DeleteStudent(id);
+
             
             // redirect to view the List of Students
             return NotFound();
